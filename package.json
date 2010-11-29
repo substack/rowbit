@@ -1,9 +1,11 @@
 {
     "name" : "rowbit",
     "version" : "0.0.1",
-    "description" : "An IRC bot that uses processes for its module system",
+    "description" : "An IRC bot that uses DNode for modules",
     "bin" : {
-        "rowbit" : "./index.js"
+        "rowbit" : "./index.js",
+        "rowbit-server" : "./bin/server.js",
+        "rowbit-say" : "./bin/say.js"
     },
     "repository" : {
         "type" : "git",
