@@ -1,19 +1,18 @@
-var argv = require('optimist').argv;
+var args = process.argv.slice(2);
 var spawn = require('child_process').spawn;
 
-var cmd = argv._.shift();
+var cmd = args.shift();
 if (cmd == 'server') {
-    argv._.unshift(__dirname + '/bin/server.js');
-    var bin = spawn(process.argv[0], argv._);
-    bin.stdout.on('data', console.log);
-    bin.stderr.on('data', console.error);
+    args.unshift(__dirname + '/bin/server.js');
+    var bin = spawn(process.argv[0], args);
+    bin.stdout.on('data', function (buf) { console.log(buf.toString()) });
+    bin.stderr.on('data', function (buf) { console.error(buf.toString()) });
 }
 else if (cmd == 'say') {
-    var ch = argv._[1];
-    argv._.unshift(__dirname + '/bin/say.js');
-    var bin = spawn(process.argv[0], argv._);
-    bin.stdout.on('data', console.log);
-    bin.stderr.on('data', console.error);
+    args.unshift(__dirname + '/bin/say.js');
+    var bin = spawn(process.argv[0], args);
+    bin.stdout.on('data', function (buf) { console.log(buf.toString()) });
+    bin.stderr.on('data', function (buf) { console.error(buf.toString()) });
 }
 else {
     console.log('Commands: server, say');

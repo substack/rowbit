@@ -14,7 +14,7 @@ var IRC = require('irc-js');
 var Seq = require('seq');
 Seq()
     .seq('db', function () {
-        Store({ filename : __dirname + '/rowbit.db', json : true }, this);
+        Store({ filename : __dirname + '/../rowbit.db', json : true }, this);
     })
     .par(function (db) { db.get('channels', this) })
     .par(function (db) { db.get('nick', this) })
