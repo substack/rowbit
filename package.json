@@ -2,11 +2,8 @@
     "name" : "rowbit",
     "version" : "0.0.1",
     "description" : "An IRC bot that uses processes for its module system",
-    "modules" : {
-        "bot" : "./bot.js",
-    },
     "bin" : {
-        "rowbit" : "./cli.js"
+        "rowbit" : "./index.js"
     },
     "repository" : {
         "type" : "git",
