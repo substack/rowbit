@@ -1,5 +1,5 @@
 var argv = require('optimist')
-    .demand([ 'server', 'nick' ])
+    .demand([ 'server' ])
     .check(function (argv) {
         return Boolean(argv.server.match(/.:\d+$/))
     })
