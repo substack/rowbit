@@ -12,6 +12,14 @@
         "type" : "git",
         "url" : "http://github.com/substack/rowbit.git"
     },
+    "dependencies" : {
+        "irc-js" : ">=0.2.8",
+        "dnode" : ">=0.3.11",
+        "traverse" : ">=0.2.3",
+        "supermarket" : ">=1.1.1",
+        "optimist" : ">=0.0.6",
+        "seq" : ">=0.0.7",
+    },
     "license" : "MIT/X11",
     "engine" : ["node >=0.2.0"]
 }
