@@ -1,6 +1,6 @@
 {
     "name" : "rowbit",
-    "version" : "0.0.1",
+    "version" : "0.0.2",
     "description" : "An IRC bot that uses DNode for modules",
     "bin" : {
         "rowbit" : "./index.js",

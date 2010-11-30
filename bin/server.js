@@ -1,7 +1,7 @@
 var argv = require('optimist')
-    .demand([ 'server' ])
+    .demand(1)
     .check(function (argv) {
-        return Boolean(argv.server.match(/.:\d+$/))
+        return Boolean(argv._[0].match(/.:\d+$/))
     })
     .argv
 ;
@@ -26,8 +26,8 @@ Seq()
         if (argv.nick) nick = argv.nick;
         
         var irc = new IRC({
-            server : argv.server.split(/:/)[0],
-            port : argv.server.split(/:/)[1],
+            server : argv._[0].split(/:/)[0],
+            port : argv._[0].split(/:/)[1],
             nick : nick || 'rowbit',
             encoding : 'utf8',
         });
