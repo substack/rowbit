@@ -32,6 +32,16 @@ Seq()
             encoding : 'utf8',
         });
         
+        var gotPing = false;
+        setInterval(function () {
+            if (!gotPing) process.exit();
+            gotPing = false;
+        }, 5 * 60 * 1000);
+        
+        irc.on('ping', function () {
+            gotPing = true;
+        });
+        
         irc.connect((function () {
             if (pw) irc.privmsg('nickserv', 'identify ' + pw);
             channels.forEach(irc.join.bind(irc));
