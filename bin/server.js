@@ -31,6 +31,7 @@ Seq()
             nick : nick || 'rowbit',
             encoding : 'utf8',
         });
+        if (!irc.on) irc.on = irc.addListener.bind(irc);
         
         var gotPing = false;
         setInterval(function () {
