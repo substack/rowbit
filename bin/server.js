@@ -33,9 +33,17 @@ Seq()
                            }
                          );
 
+        // This is to allow older stuff written for the js-irc version to keep
+        // working, maybe.
+
+        irc.privmsg = function(chan, msg) {
+            console.log('Warning: This is deprecated! Use irc.say instead.');
+            irc.say(chan, msg);
+        }
+
         // "Emitted when the server sends the message of the day to clients. 
-        // This (at least as far as I know) is the most reliable way to know when
-        // you've connected to the server." --node-irc docs
+        // This (at least as far as I know) is the most reliable way to know
+        // when you've connected to the server." --node-irc docs
         irc.on('motd', function () {
             if (pw) irc.say('nickserv', 'identify ' + pw);
             
