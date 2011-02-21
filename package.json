@@ -12,7 +12,7 @@
         "url" : "http://github.com/substack/rowbit.git"
     },
     "dependencies" : {
-        "irc-js" : ">=0.2.8",
+        "irc" : ">=0.1.2",
         "dnode" : ">=0.3.11",
         "traverse" : ">=0.2.3",
         "supermarket" : ">=1.1.1",

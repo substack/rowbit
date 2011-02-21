@@ -9,7 +9,7 @@ var argv = require('optimist')
 var DNode = require('dnode');
 var Hash = require('traverse/hash');
 var Store = require('supermarket');
-var IRC = require('irc-js');
+var IRC = require('irc').Client;
 
 var Seq = require('seq');
 Seq()
@@ -24,28 +24,20 @@ Seq()
         var channels = (ch || []).concat((argv.channels || '').split(','));
         if (argv.password) pw = argv.password;
         if (argv.nick) nick = argv.nick;
-        
-        var irc = new IRC({
-            server : argv._[0].split(/:/)[0],
-            port : argv._[0].split(/:/)[1],
-            nick : nick || 'rowbit',
-            encoding : 'utf8',
-        });
-        if (!irc.on) irc.on = irc.addListener.bind(irc);
-        
-        var gotPing = false;
-        setInterval(function () {
-            if (!gotPing) process.exit();
-            gotPing = false;
-        }, 5 * 60 * 1000);
-        
-        irc.on('ping', function () {
-            gotPing = true;
-        });
-        
-        irc.connect((function () {
-            if (pw) irc.privmsg('nickserv', 'identify ' + pw);
-            channels.forEach(irc.join.bind(irc));
+
+        //server, nick, options        
+        var irc = new IRC( argv._[0].split(/:/)[0],
+                           nick || 'rowbit',
+                           { port : argv._[0].split(/:/)[1],
+                             channels: channels
+                           }
+                         );
+
+        // "Emitted when the server sends the message of the day to clients. 
+        // This (at least as far as I know) is the most reliable way to know when
+        // you've connected to the server." --node-irc docs
+        irc.on('motd', function () {
+            if (pw) irc.say('nickserv', 'identify ' + pw);
             
             function restricted (key) {
                 return key == 'password' || key == 'secret';
