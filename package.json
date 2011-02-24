@@ -14,10 +14,8 @@
     "dependencies" : {
         "irc" : ">=0.1.2",
         "dnode" : ">=0.3.11",
-        "traverse" : ">=0.2.3",
-        "supermarket" : ">=1.1.1",
-        "optimist" : ">=0.0.6",
-        "seq" : ">=0.0.7",
+        "hashish" : ">=0.0.2",
+        "optimist" : ">=0.0.6"
     },
     "license" : "MIT/X11",
     "engine" : ["node >=0.2.0"]

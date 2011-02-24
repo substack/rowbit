@@ -7,73 +7,84 @@ var argv = require('optimist')
 ;
 
 var DNode = require('dnode');
-var Hash = require('traverse/hash');
-var Store = require('supermarket');
+var Hash = require('hashish');
 var IRC = require('irc').Client;
 
-var Seq = require('seq');
-Seq()
-    .seq('db', function () {
-        Store({ filename : __dirname + '/../rowbit.db', json : true }, this);
-    })
-    .par(function (db) { db.get('channels', this) })
-    .par(function (db) { db.get('nick', this) })
-    .par(function (db) { db.get('password', this) })
-    .par(function (db) { db.get('secret', this) })
-    .seq(function (ch, nick, pw, secret) {
-        var channels = (ch || []).concat((argv.channels || '').split(','));
-        if (argv.password) pw = argv.password;
-        if (argv.nick) nick = argv.nick;
+var fs = require('fs');
+var config = JSON.parse(fs.readFileSync(__dirname + '/../rowbit.json', 'utf8'));
 
-        //server, nick, options        
-        var irc = new IRC( argv._[0].split(/:/)[0],
-                           nick || 'rowbit',
-                           { port : argv._[0].split(/:/)[1],
-                             channels: channels
-                           }
-                         );
+var channels = (argv.channels && argv.channels.split(',')) || config.channels;
+var secret = argv.secret || config.secret;
 
-        // This is to allow older stuff written for the js-irc version to keep
-        // working, maybe.
+//server, nick, options        
+var host = argv._[0].split(/:/)[0];
+var port = argv._[0].split(/:/)[1];
 
-        irc.privmsg = function(chan, msg) {
-            console.log('Warning: This is deprecated! Use irc.say instead.');
-            irc.say(chan, msg);
-        }
+var irc = new IRC(host, argv.nick || config.nick || 'rowbit', {
+    port : port,
+    channels : channels
+});
 
-        // "Emitted when the server sends the message of the day to clients. 
-        // This (at least as far as I know) is the most reliable way to know
-        // when you've connected to the server." --node-irc docs
-        irc.on('motd', function () {
-            if (pw) irc.say('nickserv', 'identify ' + pw);
-            
-            function restricted (key) {
-                return key == 'password' || key == 'secret';
+irc.on('error', function (err) {
+    console.error(err);
+});
+
+// This is to allow older stuff written for the js-irc version to keep
+// working, maybe.
+
+irc.privmsg = function(chan, msg) {
+    console.log('Warning: This is deprecated! Use irc.say instead.');
+    irc.say(chan, msg);
+};
+
+// "Emitted when the server sends the message of the day to clients. 
+// This (at least as far as I know) is the most reliable way to know
+// when you've connected to the server." --node-irc docs
+irc.on('motd', function () {
+    var pw = argv.password || config.password;
+    if (pw) irc.say('nickserv', 'identify ' + pw);
+    
+    function restricted (key) {
+        return key == 'password' || key == 'secret';
+    }
+    
+    DNode(function (remote, conn) {
+        this.auth = function (sec, cb) {
+            if (sec !== secret) {
+                cb('ACCESS DENIED');
             }
-            
-            DNode(function (remote, conn) {
-                this.auth = function (sec, cb) {
-                    if (sec !== secret) {
-                        cb('ACCESS DENIED');
-                    }
-                    else {
-                        cb(null, {
-                            irc : Hash.map(irc, function (f) {
-                                return typeof f == 'function'
-                                    ? f.bind(irc) : f
-                            }),
-                            get : function (key, cb) {
-                                if (restricted(key)) cb('ACCESS DENIED');
-                                else db.get(key, cb);
-                            },
-                            set : function (key, value, cb) {
-                                if (restricted(key)) cb('ACCESS DENIED');
-                                else db.set(key, value, cb);
-                            },
+            else {
+                cb(null, {
+                    irc : (function () {
+                        var i = Hash.map(irc, function (f) {
+                            return typeof f == 'function'
+                                ? f.bind(irc) : f
                         });
-                    }
-                };
-            }).on('localError', this).listen(5050);
-        }).bind(this));
-    })
-;
+                        
+                        Object.keys(IRC.prototype)
+                            .filter(function (key) {
+                                return typeof i[key] === 'function'
+                            })
+                            .forEach(function (key) {
+                                i[key] = i[key].bind(i);
+                            })
+                        ;
+                        
+                        return i;
+                    })(),
+                    get : function (key, cb) {
+                        if (restricted(key)) cb('ACCESS DENIED')
+                        else cb(config[key])
+                    },
+                    set : function (key, value, cb) {
+                        if (restricted(key)) cb('ACCESS DENIED');
+                        else {
+                            config[key] = value;
+                            cb(null);
+                        }
+                    },
+                });
+            }
+        };
+    }).listen(5050);
+});
