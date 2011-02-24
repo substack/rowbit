@@ -86,5 +86,5 @@ irc.on('motd', function () {
                 });
             }
         };
-    }).listen(5050);
+    }).listen(config.server.port);
 });
