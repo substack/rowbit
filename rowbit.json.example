@@ -1,0 +1,10 @@
+{
+    "secret" : "s3kr1t",
+    "password" : "p@ssw0rd",
+    "nick" : "rowbit_",
+    "channels" : ["#stackvm"],
+    "server" : {
+        "host" : "localhost",
+        "port" : 9753
+    }
+}
